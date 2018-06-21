@@ -1,65 +1,110 @@
 import '../scss/main.scss';
 
-(function () {
+window.addEventListener('load', function () {
+    function Picker(obj, options) {
 
-    function rangepicker(pickerWrapper, options) {
+        var self = this;
 
-        var wrapper = document.getElementById(pickerWrapper);
-
-        var inputFrom = wrapper.getElementsByTagName[0];
-        var inputTo = wrapper.getElementsByTagName[1];
+        var wrapper = obj;
 
         var to = new Date();
-        var from = (to.getMonth() - 1);
+
 
         var yearTo = to.getFullYear();
         var monthTo = to.getMonth();
         var dayTo = to.getDate();
 
+        var from = new Date(yearTo, monthTo, 0);
+
         var yearFrom = from.getFullYear();
         var monthFrom = from.getMonth();
         var dayFrom = from.getDate();
 
-        function updateInput(el) {
-            
-            if (el.className.Indexof("from") != -1) {
-                dayFrom = ParseInt(el.value);
-                inputFrom.value = yearFrom + "-" + ("0" + (monthFrom + 1)).slice(-2) + "-" + ("0" + dayFrom).slice(-2); 
-                
-                return;
-            } 
+        this.update = function (e) {
+            var el = e.target;
+            if (el.className.indexOf("from") != -1) {
+                dayFrom = parseInt(el.value);
+                updateInputFrom(el);
+                // wrapper.getElementsByClassName("calendar__from")[0].innerHTML = updateCalendar(yearFrom, monthFrom, dayFrom, 'from');
+                // addDayListener("calendar__from");
+            }
+            else if (el.className.indexOf("to") != -1) {
+                dayTo = parseInt(el.value);
+                updateInputTo(el);
+                // wrapper.getElementsByClassName("to")[0].innerHTML = updateCalendar(yearTo, monthTo, dayTo, 'to');
+                // addDaylistener("calendar__to");
+            }
+        };
 
-            dayTo = ParseInt(el.value);
-            inputTo.value = yearFrom + "-" + ("0" + (monthTo + 1)).slice(-2) + "-" + ("0" + dayTo).slice(-2);
-            
-            
+        init();
+
+        function init() {
+            wrapper.innerHTML = '';
+            wrapper.innerHTML = `<div class='calendar__inputs'>From <input type='text' class='from'> To <input type='text' class='to'></div>`;
+            wrapper.innerHTML += `<div class='calendar__both'><div class='calendar__prev'>Prev</div><div class='calendar__next'>Next</div>`;
+            wrapper.innerHTML += updateCalendar(yearFrom, monthFrom, dayFrom, 'from') + updateCalendar(yearTo, monthTo, dayTo, 'to') + `</div>`;
+            addDayListener("calendar__from");
+            addDayListener("calendar__to");
         }
 
-        function renderCalendar(year,month,day,toOrFrom) {
+        var inputFrom = wrapper.getElementsByTagName('input')[0];
+        var inputTo = wrapper.getElementsByTagName('input')[1];
 
-            var calendar = `<div class='calendar__${toOrFrom}' 
-                                <div clas='calendar__header'>
-                                    <div class='year'>${year}</div>
-                                    <div class='month'>${month}</div>
-                                </div>
-                                <div class='calendar__grid'>`;
+        function updateInputFrom(el) {
+            inputFrom.value = yearFrom + "-" + ("0" + (monthFrom + 1)).slice(-2)
+                + "-" + ("0" + dayFrom).slice(-2);
+        }
 
-            var firstDay = new Date(year,month, 1);
-            var lastDay = new Date(year, month+1, 0);
-            
+        function updateInputTo(el) {
+            inputTo.value = yearFrom + "-" + ("0" + (monthTo + 1)).slice(-2)
+                + "-" + ("0" + dayTo).slice(-2);
+        }
+
+        function addDayListener(calendar1, calendar2) {
+
+            var calDays = document.getElementsByClassName(calendar1)[0].getElementsByClassName("day");
+
+            for (var n = 0; n < calDays.length; n++) {
+                calDays[n].addEventListener('click', self.update);
+            }
+
+            if (calendar2) {
+                var calDays = document.getElementsByClassName(calendar2)[0].getElementsByClassName("day");
+
+                for (var n = 0; n < calDays.length; n++) {
+                    calDays[n].addEventListener('click', self.update);
+                }
+            }
+
+
+        }
+
+
+        function updateCalendar(year, month, day, toOrFrom) {
+
+            var calendar = `<div class='calendar__${toOrFrom}'> 
+                                    <div class='calendar__header'>
+                                        <div class='year'>${year}</div>
+                                        <div class='month'>${month}</div>
+                                    </div>
+                                    <div class='calendar__grid'>`;
+
+            var firstDay = new Date(year, month, 1);
+            var lastDay = new Date(year, month + 1, 0);
+
             var offset = firstDay.getDay();
             var days = lastDay.getDate();
 
             offset = offset == 0 ? 7 : offset; // 0 is Sunday
 
-            for(var i=1;i<days;i++) {
+            for (var i = 1; i < days; i++) {
                 var selection;
 
                 if (i == day) {
                     selection = 'selected';
                 }
 
-                else if ( i < day) {
+                else if (i < day) {
                     selection = 'less';
                 }
 
@@ -67,44 +112,23 @@ import '../scss/main.scss';
                     selection = 'more';
                 }
 
-                if(i==1) {
-                    calendar+= `<button class='${toOrFrom} ${selection}' style='grid-col-start:${offset};' value='${i}'> onclick='updateInput(this)'>`;
+                if (i == 1) {
+                    calendar += `<input type="button" class='day ${toOrFrom} ${selection}' style='grid-col-start:${offset};' value='${i}'>`;
                 }
                 else {
-                    calendar += `<button class='${toOrFrom} ${selection}' value='${i}'> onclick='updateInput(this)'>`;
+                    calendar += `<input type="button" class='day ${toOrFrom} ${selection}' value='${i}'>`;
                 }
-                
+
             }
 
-            calendar+=`</div>
-                      </div>`;
+            calendar += `</div>
+                          </div>`;
 
-            return calendar;            
+            return calendar;
         }
-
-        var temp = `<div class='modal' tabindex='-1' role='dialog'>
-                        <div class='modal-dialog' role='document'>
-                            <div class='modal-content'>
-                                <div class='modal-header'>
-                                From <input type='text' class='from'>
-                                To <input type='text' class='to'>
-                                <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-                                    <span aria-hidden='true'>&times;</span>
-                                </button>
-                                </div>
-                                <div class='modal-body'>
-                                    <div class='calendar'>
-                                        
-                                        
-                                    </div>
-                                </div>
-                                <div class='modal-footer'>
-                                <button type='button' class='btn btn-primary'>Save changes</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
 
     }
 
-})();
+    var rangepicker = new Picker(document.getElementById("calendar"));
+});
+
