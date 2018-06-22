@@ -1,24 +1,43 @@
 import '../scss/main.scss';
 
 window.addEventListener('load', function () {
-    function Picker(obj, options) {
+    var Picker = function () {
 
-        var self = this;
+        var wrapper;
 
-        var wrapper = obj;
+        var to;
 
-        var to = new Date();
+        var yearTo;
+        var monthTo;
+        var dayTo;
 
+        var from;
 
-        var yearTo = to.getFullYear();
-        var monthTo = to.getMonth();
-        var dayTo = to.getDate();
+        var yearFrom;
+        var monthFrom;
+        var dayFrom;
 
-        var from = new Date(yearTo, monthTo, 0);
+        var inputFrom;
+        var inputTo;
 
-        var yearFrom = from.getFullYear();
-        var monthFrom = from.getMonth();
-        var dayFrom = from.getDate();
+        function init(obj,options) {
+
+            wrapper = obj;
+
+            to = new Date();
+
+            yearTo = to.getFullYear();
+            monthTo = to.getMonth();
+            dayTo = to.getDate();
+
+            from = new Date(yearTo, monthTo, 0);
+
+            yearFrom = from.getFullYear();
+            monthFrom = from.getMonth();
+            dayFrom = from.getDate();
+
+            render();
+        }
 
         function update(e) {
             var el = e.target;
@@ -32,20 +51,20 @@ window.addEventListener('load', function () {
             }
         };
 
-        init();
 
-        function init() {
+        function render() {
             wrapper.innerHTML = '';
             wrapper.innerHTML = `<div class='calendar__inputs'>From <input type='text' class='from'> To <input type='text' class='to'></div>`;
             wrapper.innerHTML += `<span class='calendar__prev'>Prev</span><span class='calendar__next'>Next</span>`;
             wrapper.innerHTML += `<div class='calendar__both'>${updateCalendar(yearFrom, monthFrom, dayFrom, 'from')} ${updateCalendar(yearTo, monthTo, dayTo, 'to')}</div>`;
+            
+            inputFrom = wrapper.getElementsByTagName('input')[0];
+            inputTo = wrapper.getElementsByTagName('input')[1];
+            
             addDayListener("calendar__from");
             addDayListener("calendar__to");
             addNextPrevListener();
         }
-
-        var inputFrom = wrapper.getElementsByTagName('input')[0];
-        var inputTo = wrapper.getElementsByTagName('input')[1];
 
         function updateInputFrom(el) {
             inputFrom.value = yearFrom + "-" + ("0" + (monthFrom + 1)).slice(-2)
@@ -153,8 +172,15 @@ window.addEventListener('load', function () {
             return calendar;
         }
 
-    }
+        return {
+            init: init
+        }
 
-    var rangepicker = new Picker(document.getElementById("calendar"));
+    };
+
+    var calend = new Picker();
+
+    calend.init(document.getElementById("calendar"));
+
 });
 
