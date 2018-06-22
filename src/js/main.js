@@ -20,19 +20,15 @@ window.addEventListener('load', function () {
         var monthFrom = from.getMonth();
         var dayFrom = from.getDate();
 
-        this.update = function (e) {
+        function update(e) {
             var el = e.target;
             if (el.className.indexOf("from") != -1) {
                 dayFrom = parseInt(el.value);
                 updateInputFrom(el);
-                // wrapper.getElementsByClassName("calendar__from")[0].innerHTML = updateCalendar(yearFrom, monthFrom, dayFrom, 'from');
-                // addDayListener("calendar__from");
             }
             else if (el.className.indexOf("to") != -1) {
                 dayTo = parseInt(el.value);
                 updateInputTo(el);
-                // wrapper.getElementsByClassName("to")[0].innerHTML = updateCalendar(yearTo, monthTo, dayTo, 'to');
-                // addDaylistener("calendar__to");
             }
         };
 
@@ -41,10 +37,11 @@ window.addEventListener('load', function () {
         function init() {
             wrapper.innerHTML = '';
             wrapper.innerHTML = `<div class='calendar__inputs'>From <input type='text' class='from'> To <input type='text' class='to'></div>`;
-            wrapper.innerHTML += `<div class='calendar__both'><div class='calendar__prev'>Prev</div><div class='calendar__next'>Next</div>`;
-            wrapper.innerHTML += updateCalendar(yearFrom, monthFrom, dayFrom, 'from') + updateCalendar(yearTo, monthTo, dayTo, 'to') + `</div>`;
+            wrapper.innerHTML += `<span class='calendar__prev'>Prev</span><span class='calendar__next'>Next</span>`;
+            wrapper.innerHTML += `<div class='calendar__both'>${updateCalendar(yearFrom, monthFrom, dayFrom, 'from')} ${updateCalendar(yearTo, monthTo, dayTo, 'to')}</div>`;
             addDayListener("calendar__from");
             addDayListener("calendar__to");
+            addNextPrevListener();
         }
 
         var inputFrom = wrapper.getElementsByTagName('input')[0];
@@ -65,18 +62,47 @@ window.addEventListener('load', function () {
             var calDays = document.getElementsByClassName(calendar1)[0].getElementsByClassName("day");
 
             for (var n = 0; n < calDays.length; n++) {
-                calDays[n].addEventListener('click', self.update);
+                calDays[n].addEventListener('click', update);
             }
 
             if (calendar2) {
                 var calDays = document.getElementsByClassName(calendar2)[0].getElementsByClassName("day");
 
                 for (var n = 0; n < calDays.length; n++) {
-                    calDays[n].addEventListener('click', self.update);
+                    calDays[n].addEventListener('click', update);
                 }
             }
 
+        }
 
+        function addNextPrevListener() {
+            wrapper.getElementsByClassName("calendar__prev")[0].addEventListener('click', function () {
+                to = from;
+                yearTo = yearFrom;
+                monthTo = monthFrom;
+
+                from = new Date(yearFrom, monthFrom, 0);
+                yearFrom = from.getFullYear();
+                monthFrom = from.getMonth();
+                wrapper.getElementsByClassName("calendar__both")[0].innerHTML = updateCalendar(yearFrom, monthFrom, dayFrom, 'from') 
+                                                                                + updateCalendar(yearTo, monthTo, dayTo, 'to'); 
+                addDayListener("calendar__from");
+                addDayListener("calendar__to");
+            });
+            wrapper.getElementsByClassName("calendar__next")[0].addEventListener('click', function () {
+                from = to;
+                yearFrom = yearTo;
+                monthFrom = monthTo;
+
+                to = new Date(yearTo, monthFrom + 1, 1);
+                yearTo = to.getFullYear();
+                monthTo = to.getMonth();
+
+                wrapper.getElementsByClassName("calendar__both")[0].innerHTML = updateCalendar(yearFrom, monthFrom, dayFrom, 'from') 
+                                                                                + updateCalendar(yearTo, monthTo, dayTo, 'to');
+                addDayListener("calendar__from");
+                addDayListener("calendar__to");
+            });
         }
 
 
@@ -97,7 +123,7 @@ window.addEventListener('load', function () {
 
             offset = offset == 0 ? 7 : offset; // 0 is Sunday
 
-            for (var i = 1; i < days; i++) {
+            for (var i = 1; i <= days; i++) {
                 var selection;
 
                 if (i == day) {
