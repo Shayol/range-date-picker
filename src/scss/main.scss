@@ -1,5 +1,9 @@
 @import 'blocks/calendar';
 
+body {
+    font-size: 15px;
+}
+
 
 *, *::after, *::before {
     box-sizing: border-box;
@@ -35,4 +39,50 @@
     text-align: center;
     padding-top: 10px;
     cursor: pointer;
+    background-color: white;
+    border: none;
+    position: relative;
+    outline: none;
+    padding: 0;
+}
+
+.day:hover {
+    background-color:#e1f5fe;
+    color: #333;
+    border: 1px solid #039be5;
+}
+
+.selected {
+    color: #fff;
+    background-color: #039be5;
+    border: 1px solid #039be5;
+}
+.selected:hover {
+    background-color: white;
+    color: #333;
+}
+.inrange {
+    background-color: #e1f5fe;
+    border-radius: 0;
+}
+.inrange:hover {
+    border-radius: 50px; 
+}
+.inrange::before, .inrange::after {
+    content:'';
+    display: block;
+    position: absolute;
+    top: 0;
+    width: 30%;
+    height: 100%;
+    background-color: #e1f5fe;
+    z-index: -1;
+}
+
+.inrange::before {
+    left: 0;
+}
+
+.inrange::after {
+    right: 0;
 }
