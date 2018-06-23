@@ -45,24 +45,29 @@ window.addEventListener('load', function () {
 
         function update(e) {
             var el = e.target;
+            var input;
             if (el.className.indexOf("from") != -1) {
-                var input = new Date(yearFrom, monthFrom, parseInt(el.value));
-
-                dayFrom = new Date(yearFrom, monthFrom, parseInt(el.value));
-                updateInputFrom(el);
-                wrapper.getElementsByClassName("calendar__both")[0].innerHTML = updateCalendar(yearFrom, monthFrom, 'from')
-                                        + updateCalendar(yearTo, monthTo, 'to');
-                addDayListener();
+                input = new Date(yearFrom, monthFrom, parseInt(el.value));
             }
-            else if (el.className.indexOf("to") != -1) {
-                var input = new Date(yearTo, monthTo, parseInt(el.value));
-
-                dayTo = new Date(yearTo, monthTo, parseInt(el.value));
-                updateInputTo(el);
-                wrapper.getElementsByClassName("calendar__both")[0].innerHTML = updateCalendar(yearFrom, monthFrom, 'from')
-                                        + updateCalendar(yearTo, monthTo, 'to');
-                addDayListener();
+            if (el.className.indexOf("to") != -1) {
+                input = new Date(yearTo, monthTo, parseInt(el.value));
             }
+
+            if(dayFrom - input < 0) {
+                dayTo = new Date(input.getFullYear(), input.getMonth(), input.getDate());
+                
+                updateInputTo();
+            }
+            else if(dayFrom - input > 0) {
+                dayTo = new Date(dayFrom.getFullYear(), dayFrom.getMonth(),dayFrom.getDate());
+                dayFrom = new Date(input.getFullYear(), input.getMonth(), input.getDate());
+                updateInputFrom();
+                updateInputTo();
+            }
+   
+            wrapper.getElementsByClassName("calendar__both")[0].innerHTML = updateCalendar(yearFrom, monthFrom, 'from')
+                                    + updateCalendar(yearTo, monthTo, 'to');
+            addDayListener();
         };
 
 
@@ -221,8 +226,6 @@ window.addEventListener('load', function () {
 
                 else if (currentDay - dayTo == 0) {
                     selection = 'selected dayto';
-                    console.log(+dayTo);
-                    console.log(+currentDay);
                 }
 
                 else if (currentDay - dayFrom > 0 && dayTo - currentDay > 0) {
