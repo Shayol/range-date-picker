@@ -28,21 +28,16 @@ body {
     justify-content: space-between;
 }
 
-.calendar__to, .calendar__from {
-
-}
-
 .day {
     height: 40px;
     width: 40px;
-    border-radius: 50px;
+    border-radius: 100%;
     text-align: center;
     padding-top: 10px;
     cursor: pointer;
     background-color: white;
     border: none;
     position: relative;
-    outline: none;
     padding: 0;
 }
 
@@ -66,9 +61,9 @@ body {
     border-radius: 0;
 }
 .inrange:hover {
-    border-radius: 50px; 
+    border-radius: 100%; 
 }
-.inrange::before, .inrange::after {
+.inrange::before, .inrange::after, .end::before, .start::after {
     content:'';
     display: block;
     position: absolute;
@@ -79,11 +74,11 @@ body {
     z-index: -1;
 }
 
-.inrange::before {
+.inrange::before, .end::before {
     left: 0;
 }
 
-.inrange::after {
+.inrange::after, .start::after {
     right: 0;
 }
 .disabled {

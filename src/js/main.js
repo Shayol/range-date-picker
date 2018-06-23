@@ -33,6 +33,7 @@ window.addEventListener('load', function () {
             settings = options || {};
 
             dayTo = settings.end || new Date();
+            dayTo = new Date(dayTo.getFullYear(),dayTo.getMonth(),dayTo.getDate());
 
             to =  new Date(dayTo.getFullYear(), dayTo.getMonth());
 
@@ -145,12 +146,12 @@ window.addEventListener('load', function () {
 
             function handleInput(e) {
                 if (e.target.value.length == 10) {
-                    var arr = e.target.value.split("-");
+                    var arr = e.target.value.split("-");    // handle input, errors properly
                     var year = parseInt(arr[0]);
                     var month = parseInt(arr[1]);
                     var day = parseInt(arr[2]);
 
-                    if (year > yearMin && year < new Date().getFullYear() + 1) {
+                    if (year >= allowedMin.getFullYear() && year <= allowedMax.getFullYear() + 1) {
                         if (month >= 0 && month < 12) {
                             if (day > 0 && day < 32) {
 
@@ -264,17 +265,19 @@ window.addEventListener('load', function () {
                 var selection = '';
 
                 var currentDay = new Date(year, month, i);
+                console.log(currentDay);
+                console.log(dayTo);
 
                 if (currentDay < allowedMin || currentDay > allowedMax) {
                     selection = 'disabled';
                 }
 
                 else if (currentDay - dayFrom == 0) {
-                    selection = 'selected dayfrom available';
+                    selection = 'selected start available';
                 }
 
                 else if (dayTo && (currentDay - dayTo == 0)) {
-                    selection = 'selected dayto available';
+                    selection = 'selected end available';
                 }
 
                 else if (dayTo && (currentDay - dayFrom > 0 && dayTo - currentDay > 0)) {
