@@ -326,7 +326,7 @@ window.addEventListener('load', function () {
 
     var allowedMin = new Date(2018,5,10);
 
-    calend.init(document.getElementById("calendar"),{allowedMin: allowedMin});
+    calend.init(document.querySelector(".width-calendars"),{allowedMin: allowedMin});
 
 });
 
