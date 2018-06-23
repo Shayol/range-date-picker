@@ -4,6 +4,7 @@ window.addEventListener('load', function () {
     var Picker = function () {
 
         var wrapper;
+        var settings;
 
         var to; //current right calendar
 
@@ -22,23 +23,40 @@ window.addEventListener('load', function () {
         var inputFrom;
         var inputTo;
 
+        var allowedMin;
+        var allowedMax;
+
         function init(obj, options) {
 
             wrapper = obj;
 
-            to = new Date();
+            settings = options || {};
+
+            dayTo = settings.end || new Date();
+
+            to =  new Date(dayTo.getFullYear(), dayTo.getMonth());
 
             yearTo = to.getFullYear();
             monthTo = to.getMonth();
 
-            dayTo = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+            if (settings.start) {
+                dayFrom = settings.start;
+            }
 
-            from = new Date(yearTo, monthTo, 0);
+            else {
+                dayFrom = new Date(yearTo, monthTo, dayTo.getDate());
+                dayFrom.setDate(dayFrom.getDate() - 30);
+            }
+
+            from = new Date(dayFrom.getFullYear(),dayFrom.getMonth());
 
             yearFrom = from.getFullYear();
             monthFrom = from.getMonth();
 
-            dayFrom = new Date(yearFrom, monthFrom, dayTo.getDate());
+            allowedMin = settings.allowedMin || new Date(2000,0);
+            allowedMax = settings.allowedMax || new Date();
+
+            
 
             render();
         }
@@ -53,12 +71,18 @@ window.addEventListener('load', function () {
                 input = new Date(yearTo, monthTo, parseInt(el.value));
             }
 
-            if(dayFrom - input < 0) {
+            if(dayFrom && dayTo) {
+                dayFrom = new Date(input.getFullYear(), input.getMonth(), input.getDate());
+                dayTo = null;
+                updateInputTo();
+                updateInputFrom();
+            }
+            else if(dayFrom && dayFrom - input < 0) {
                 dayTo = new Date(input.getFullYear(), input.getMonth(), input.getDate());
-                
                 updateInputTo();
             }
-            else if(dayFrom - input > 0) {
+
+            else if(dayFrom && dayFrom - input > 0) {
                 dayTo = new Date(dayFrom.getFullYear(), dayFrom.getMonth(),dayFrom.getDate());
                 dayFrom = new Date(input.getFullYear(), input.getMonth(), input.getDate());
                 updateInputFrom();
@@ -95,8 +119,24 @@ window.addEventListener('load', function () {
         }
 
         function updateInputTo() {
-            inputTo.value = dayTo.getFullYear() + "-" + ("0" + (dayTo.getMonth() + 1)).slice(-2)
+            if(dayTo) {
+                inputTo.value = dayTo.getFullYear() + "-" + ("0" + (dayTo.getMonth() + 1)).slice(-2)
                 + "-" + ("0" + dayTo.getDate()).slice(-2);
+            }
+            else {
+                inputTo.value = '';
+            }
+            
+        }
+
+        function highlight(e) {
+
+            // if(e.target.className.indexOf("from") != -1) {
+            //     var day = new Date(yearFrom, monthFrom, parseInt(e.target.value));
+            // }
+
+            // var hoverDays = wrapper.getElementsByClassName('hoverable');
+
         }
 
         function addInputListener() {
@@ -110,11 +150,15 @@ window.addEventListener('load', function () {
                     var month = parseInt(arr[1]);
                     var day = parseInt(arr[2]);
 
-                    if (year > 2000 && year < new Date().getFullYear() + 1) {
+                    if (year > yearMin && year < new Date().getFullYear() + 1) {
                         if (month >= 0 && month < 12) {
                             if (day > 0 && day < 32) {
 
                                 if (e.target == inputFrom) {
+                                    if(allowedMin > new Date(year, month - 1, day)) {
+                                        updateInputFrom();
+                                        return;
+                                    }
                                     from = new Date(year, month - 1, day);
                                     yearFrom = from.getFullYear();
                                     monthFrom = from.getMonth();
@@ -131,6 +175,10 @@ window.addEventListener('load', function () {
                                 }
 
                                 else if (e.target == inputTo) {
+                                    if(allowedMax < new Date(year, month - 1, day)) {
+                                        updateInputTo();
+                                        return;
+                                    }
                                     to = new Date(year, month - 1, day);
                                     yearTo = to.getFullYear();
                                     monthTo = to.getMonth();
@@ -155,16 +203,13 @@ window.addEventListener('load', function () {
 
         function addDayListener() {
 
-                var calDays = document.getElementsByClassName("calendar__from")[0].getElementsByClassName("day");
+                var calDays = wrapper.getElementsByClassName("available");
 
                 for (var n = 0; n < calDays.length; n++) {
                     calDays[n].addEventListener('click', update);
-                }
 
-                var calDays = document.getElementsByClassName("calendar__to")[0].getElementsByClassName("day");
-
-                for (var n = 0; n < calDays.length; n++) {
-                    calDays[n].addEventListener('click', update);
+                    if(calDays[n].className.indexOf('hoverable') != -1)
+                        calDays[n].addEventListener('hover', highlight);
                 }
 
         }
@@ -220,20 +265,32 @@ window.addEventListener('load', function () {
 
                 var currentDay = new Date(year, month, i);
 
-                if (currentDay - dayFrom == 0) {
-                    selection = 'selected dayfrom';
+                if (currentDay < allowedMin || currentDay > allowedMax) {
+                    selection = 'disabled';
                 }
 
-                else if (currentDay - dayTo == 0) {
-                    selection = 'selected dayto';
+                else if (currentDay - dayFrom == 0) {
+                    selection = 'selected dayfrom available';
                 }
 
-                else if (currentDay - dayFrom > 0 && dayTo - currentDay > 0) {
-                    selection = 'inrange';
+                else if (dayTo && (currentDay - dayTo == 0)) {
+                    selection = 'selected dayto available';
+                }
+
+                else if (dayTo && (currentDay - dayFrom > 0 && dayTo - currentDay > 0)) {
+                    selection = 'inrange available';
+                }
+
+                else if(!dayTo && currentDay > dayFrom) {
+                    selection = 'hoverable available'
+                }
+
+                else {
+                    selection = 'available';
                 }
 
                 if (i == 1) {
-                    calendar += `<button class='day ${toOrFrom} ${selection}' style='grid-col-start:${offset};' value='${i}'>${i}</button>`;
+                    calendar += `<button class='day ${toOrFrom} ${selection}' style='grid-column-start:${offset};' value='${i}'>${i}</button>`;
                 }
                 else {
                     calendar += `<button class='day ${toOrFrom} ${selection}' value='${i}'>${i}</button>`;

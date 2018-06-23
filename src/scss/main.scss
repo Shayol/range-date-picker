@@ -46,7 +46,7 @@ body {
     padding: 0;
 }
 
-.day:hover {
+.day.available:hover {
     background-color:#e1f5fe;
     color: #333;
     border: 1px solid #039be5;
@@ -85,4 +85,9 @@ body {
 
 .inrange::after {
     right: 0;
+}
+.disabled {
+    color: #ccc;
+    pointer-events: none;
+    cursor: default;
 }
