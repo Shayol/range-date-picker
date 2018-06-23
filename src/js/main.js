@@ -67,13 +67,7 @@ window.addEventListener('load', function () {
 
         function update(e) {
             var el = e.target;
-            var input;
-            if (el.className.indexOf("from") != -1) {
-                input = new Date(yearFrom, monthFrom, parseInt(el.value));
-            }
-            if (el.className.indexOf("to") != -1) {
-                input = new Date(yearTo, monthTo, parseInt(el.value));
-            }
+            var input = new Date(parseInt(el.value));
 
             if(dayFrom && dayTo) {
                 dayFrom = new Date(input.getFullYear(), input.getMonth(), input.getDate());
@@ -135,11 +129,18 @@ window.addEventListener('load', function () {
 
         function highlight(e) {
 
-            // if(e.target.className.indexOf("from") != -1) {
-            //     var day = new Date(yearFrom, monthFrom, parseInt(e.target.value));
-            // }
+            var thisDay = parseInt(e.target.value);
 
-            // var hoverDays = wrapper.getElementsByClassName('hoverable');
+            var hoverDays = wrapper.getElementsByClassName('hoverable');
+            for(var i=0; i<hoverDays.length;i++) {
+                var day = parseInt(hoverDays[i].value)
+                if(day <= thisDay) {
+                    hoverDays[i].classList.add('inrange'); 
+                }
+                else {
+                    hoverDays[i].classList.remove('inrange'); 
+                }
+            }
 
         }
 
@@ -218,7 +219,7 @@ window.addEventListener('load', function () {
                     calDays[n].addEventListener('click', update);
 
                     if(calDays[n].className.indexOf('hoverable') != -1)
-                        calDays[n].addEventListener('hover', highlight);
+                        calDays[n].addEventListener('mouseenter', highlight);
                 }
 
         }
@@ -301,10 +302,10 @@ window.addEventListener('load', function () {
                 }
 
                 if (i == 1) {
-                    calendar += `<button class='day ${toOrFrom} ${selection}' style='grid-column-start:${offset};' value='${i}'>${i}</button>`;
+                    calendar += `<button class='day ${toOrFrom} ${selection}' style='grid-column-start:${offset};' value='${+currentDay}'>${i}</button>`;
                 }
                 else {
-                    calendar += `<button class='day ${toOrFrom} ${selection}' value='${i}'>${i}</button>`;
+                    calendar += `<button class='day ${toOrFrom} ${selection}' value='${+currentDay}'>${i}</button>`;
                 }
 
             }

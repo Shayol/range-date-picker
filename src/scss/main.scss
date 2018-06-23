@@ -39,22 +39,13 @@ body {
     border: none;
     position: relative;
     padding: 0;
+    outline: none;
 }
 
 .day.available:hover {
     background-color:#e1f5fe;
     color: #333;
     border: 1px solid #039be5;
-}
-
-.selected {
-    color: #fff;
-    background-color: #039be5;
-    border: 1px solid #039be5;
-}
-.selected:hover {
-    background-color: white;
-    color: #333;
 }
 .inrange {
     background-color: #e1f5fe;
@@ -85,4 +76,14 @@ body {
     color: #ccc;
     pointer-events: none;
     cursor: default;
+}
+
+.selected {
+    color: #fff;
+    background-color: #039be5;
+    border: 1px solid #039be5;
+}
+.selected:hover {
+    background-color: white;
+    color: #333;
 }
