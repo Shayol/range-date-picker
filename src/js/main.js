@@ -26,14 +26,18 @@ window.addEventListener('load', function () {
         var allowedMin;
         var allowedMax;
 
-        function init(obj, options) {
+        function init(obj, options, cb) {
 
             wrapper = obj;
 
             settings = options || {};
 
+            allowedMin = settings.allowedMin || new Date(2000,0);
+            allowedMax = new Date();
+            allowedMax = new Date(allowedMax.getFullYear(),allowedMax.getMonth(),allowedMax.getDate());
+
             dayTo = settings.end || new Date();
-            dayTo = new Date(dayTo.getFullYear(),dayTo.getMonth(),dayTo.getDate());
+            dayTo = new Date(dayTo.getFullYear(),dayTo.getMonth(),dayTo.getDate());            
 
             to =  new Date(dayTo.getFullYear(), dayTo.getMonth());
 
@@ -46,18 +50,17 @@ window.addEventListener('load', function () {
 
             else {
                 dayFrom = new Date(yearTo, monthTo, dayTo.getDate());
-                dayFrom.setDate(dayFrom.getDate() - 30);
+                dayFrom.setDate(dayFrom.getDate() - 30); //start date - 30 days ago
             }
 
-            from = new Date(dayFrom.getFullYear(),dayFrom.getMonth());
+            if(dayFrom < allowedMin) { //only dates since last transaction allowed
+                dayFrom = new Date(allowedMin.getFullYear(),allowedMin.getMonth(),allowedMin.getDate());
+            }
+
+            from = new Date(dayTo.getFullYear(),dayTo.getMonth()-1);
 
             yearFrom = from.getFullYear();
-            monthFrom = from.getMonth();
-
-            allowedMin = settings.allowedMin || new Date(2000,0);
-            allowedMax = settings.allowedMax || new Date();
-
-            
+            monthFrom = from.getMonth();            
 
             render();
         }
@@ -160,19 +163,24 @@ window.addEventListener('load', function () {
                                         updateInputFrom();
                                         return;
                                     }
-                                    from = new Date(year, month - 1, day);
+
+                                    dayFrom = new Date(year, month - 1, day); 
+
+                                    from = new Date(year, month - 1);
                                     yearFrom = from.getFullYear();
                                     monthFrom = from.getMonth();
 
-                                    dayFrom = new Date(yearFrom, monthFrom, from.getDate());
+                                    
 
-                                    to = new Date(yearFrom, monthFrom + 1, 1);
+                                    to = new Date(yearFrom, monthFrom + 1);
                                     yearTo = to.getFullYear();
                                     monthTo = to.getMonth();
 
                                     wrapper.getElementsByClassName("calendar__both")[0].innerHTML = updateCalendar(yearFrom, monthFrom, 'from')
                                         + updateCalendar(yearTo, monthTo, 'to');
                                         addDayListener();
+
+                                        inputTo.focus(); //after entering start data focuse on end input
                                 }
 
                                 else if (e.target == inputTo) {
@@ -266,7 +274,7 @@ window.addEventListener('load', function () {
 
                 var currentDay = new Date(year, month, i);
                 console.log(currentDay);
-                console.log(dayTo);
+                console.log(dayFrom);
 
                 if (currentDay < allowedMin || currentDay > allowedMax) {
                     selection = 'disabled';
@@ -315,7 +323,9 @@ window.addEventListener('load', function () {
 
     var calend = new Picker();
 
-    calend.init(document.getElementById("calendar"));
+    var allowedMin = new Date(2018,5,10);
+
+    calend.init(document.getElementById("calendar"),{allowedMin: allowedMin});
 
 });
 
